@@ -11,6 +11,7 @@
     "status": "tsx src/daemon.ts status",
     "logs": "tsx src/daemon.ts logs",
     "build": "tsc",
+    "service": "tsx src/service.ts",
     "manage": "tsx src/manage.ts",
     "guide": "cat GUIDE.md"
   },
