@@ -6,6 +6,10 @@
   "scripts": {
     "setup": "tsx src/setup.ts",
     "start": "tsx src/index.ts",
+    "start:daemon": "tsx src/daemon.ts start",
+    "stop": "tsx src/daemon.ts stop",
+    "status": "tsx src/daemon.ts status",
+    "logs": "tsx src/daemon.ts logs",
     "build": "tsc",
     "manage": "tsx src/manage.ts",
     "guide": "cat GUIDE.md"
