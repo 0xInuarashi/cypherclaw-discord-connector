@@ -23,6 +23,8 @@ Before running any commands, you must collect:
 
 Do not proceed without the bot token and at least one owner ID.
 
+**Discord bot setup note:** In the [Discord Developer Portal](https://discord.com/developers/applications), under Bot → Privileged Gateway Intents, the **Message Content Intent** must be enabled or the bot will receive messages with empty content.
+
 ---
 
 ## Step 2 — Check prerequisites
@@ -110,6 +112,16 @@ If setup exits with an error, a required flag is missing — recheck the command
 
 ## Step 6 — Start the connector
 
+**As a daemon (recommended):**
+```bash
+npm run start:daemon
+```
+
+Expected output: `[daemon] Started (pid <number>). Logs: /tmp/cypherclaw-discord.log`
+
+The connector runs in the background and survives the current terminal session. Logs are written to `/tmp/cypherclaw-discord.log`.
+
+**Foreground (for debugging):**
 ```bash
 npm start
 ```
@@ -124,6 +136,42 @@ If the bot login fails, the `--bot-token` is invalid — ask the user to regener
 
 ---
 
+## Managing the connector
+
+### Daemon control
+
+| Command | Description |
+|---|---|
+| `npm run start:daemon` | Start in background |
+| `npm run stop` | Stop the daemon |
+| `npm run status` | Check if running |
+| `npm run logs` | Tail live logs |
+
+### Managing owners, guilds, and channels
+
+Add or remove IDs without re-running setup. Changes take effect on the next start.
+
+```bash
+npm run manage -- add owner <id1,id2>
+npm run manage -- remove owner <id>
+npm run manage -- add guild <id1,id2>
+npm run manage -- remove guild <id>
+npm run manage -- add channel <id1,id2>
+npm run manage -- remove channel <id>
+npm run manage -- list
+```
+
+### Reconfiguring from scratch
+
+Re-run Step 5 with new flags — it overwrites the existing `.env`.
+
+To revoke the CypherClaw token:
+```bash
+cypherclaw token revoke discord
+```
+
+---
+
 ## Bot behavior (for your reference)
 
 - **Guild channels**: responds only when @mentioned. Only allowed owners trigger a response.
@@ -133,17 +181,8 @@ If the bot login fails, the `--bot-token` is invalid — ask the user to regener
 
 ---
 
-## Reconfiguring
+## Viewing this guide
 
-To change any setting, re-run Step 5 with new flags (it overwrites `.env`), then restart with `npm start`.
-
-To revoke the CypherClaw token:
 ```bash
-cypherclaw token revoke discord
+npm run guide
 ```
-
----
-
-## Stopping
-
-Send `SIGINT` (`Ctrl+C`) to the process. The gateway registration clears automatically.
