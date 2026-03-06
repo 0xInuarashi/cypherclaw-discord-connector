@@ -1,0 +1,27 @@
+{
+  "name": "cypherclaw-discord-connector",
+  "version": "0.1.0",
+  "description": "Discord connector for CypherClaw",
+  "type": "module",
+  "scripts": {
+    "setup": "tsx src/setup.ts",
+    "start": "tsx src/index.ts",
+    "build": "tsc",
+    "guide": "cat GUIDE.md"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "discord.js": "^14.15.3",
+    "dotenv": "^16.4.5",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.2",
+    "@types/uuid": "^10.0.0",
+    "tsx": "^4.15.1",
+    "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
