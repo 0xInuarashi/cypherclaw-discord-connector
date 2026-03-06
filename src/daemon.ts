@@ -3,6 +3,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { parse as parseEnv } from "dotenv";
 
 const PID_FILE = path.join(os.tmpdir(), "cypherclaw-discord.pid");
 const LOG_FILE = path.join(os.tmpdir(), "cypherclaw-discord.log");
@@ -47,12 +48,21 @@ if (cmd === "start") {
     process.exit(1);
   }
 
+  const envPath = path.resolve(__dirname, "../.env");
+  const envRaw = await fs.readFile(envPath, "utf-8").catch(() => "");
+  const connectorEnv: Record<string, string> = {
+    PATH: process.env.PATH ?? "",
+    HOME: process.env.HOME ?? "",
+    TMPDIR: process.env.TMPDIR ?? "",
+    ...parseEnv(envRaw),
+  };
+
   const logFd = await fs.open(LOG_FILE, "a");
   const child = spawn(process.execPath, ["--import", "tsx/esm", path.join(__dirname, "index.ts")], {
     detached: true,
     stdio: ["ignore", logFd.fd, logFd.fd],
-    env: process.env,
-    cwd: process.cwd(),
+    env: connectorEnv,
+    cwd: path.resolve(__dirname, ".."),
   });
 
   child.unref();
