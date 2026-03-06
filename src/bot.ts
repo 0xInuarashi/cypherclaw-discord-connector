@@ -1,8 +1,45 @@
-import { Client, Events, GatewayIntentBits, Partials, type Message } from "discord.js";
+import { AttachmentBuilder, Client, Events, GatewayIntentBits, Partials, type Message } from "discord.js";
 import type { Config } from "./config.js";
 import { chat } from "./gateway.js";
 import { isAllowed } from "./permissions.js";
 import { getSessionId } from "./sessions.js";
+
+const CHUNK_SIZE = 1800;
+const FILE_THRESHOLD = 20_000;
+
+function splitIntoChunks(text: string): string[] {
+  const chunks: string[] = [];
+  let remaining = text;
+
+  while (remaining.length > CHUNK_SIZE) {
+    let cut = remaining.lastIndexOf(" ", CHUNK_SIZE);
+    if (cut <= 0) cut = CHUNK_SIZE;
+    chunks.push(remaining.slice(0, cut));
+    remaining = remaining.slice(cut).trimStart();
+  }
+
+  if (remaining.length > 0) chunks.push(remaining);
+  return chunks;
+}
+
+async function sendReply(message: Message, reply: string): Promise<void> {
+  if (reply.length > FILE_THRESHOLD) {
+    const attachment = new AttachmentBuilder(Buffer.from(reply, "utf-8"), { name: "reply.txt" });
+    await message.reply({ files: [attachment] });
+    return;
+  }
+
+  if (reply.length <= CHUNK_SIZE) {
+    await message.reply(reply);
+    return;
+  }
+
+  const chunks = splitIntoChunks(reply);
+  let previous: Message = await message.reply(chunks[0]);
+  for (let i = 1; i < chunks.length; i++) {
+    previous = await previous.reply(chunks[i]);
+  }
+}
 
 function isMentioned(message: Message, clientId: string): boolean {
   return message.mentions.users.has(clientId);
@@ -67,7 +104,7 @@ export function createBot(config: Config): Client {
       } finally {
         clearInterval(typingInterval);
       }
-      await message.reply(reply);
+      await sendReply(message, reply);
     } catch (err) {
       console.error("[bot] Error handling message:", err instanceof Error ? err.message : err);
       await message.reply("Something went wrong reaching the CypherClaw agent.").catch(() => {});
