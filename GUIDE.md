@@ -31,11 +31,11 @@ Do not proceed without the bot token and at least one owner ID.
 
 Run these checks. If any fail, report them to the user and stop.
 
-**Node.js version (must be >= 20):**
+**Node.js version (must be >= 18):**
 ```bash
 node --version
 ```
-Expected: `v20.x.x` or higher.
+Expected: `v18.x.x` or higher.
 
 **Git is available:**
 ```bash
