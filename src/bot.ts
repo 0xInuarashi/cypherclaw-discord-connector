@@ -30,6 +30,8 @@ export function createBot(config: Config): Client {
   });
 
   client.on(Events.MessageCreate, async (message) => {
+    console.log(`[bot:debug] messageCreate from=${message.author.id} bot=${message.author.bot} isDM=${!message.guild} content="${message.content}"`);
+
     if (message.author.bot) return;
 
     const isDM = !message.guild;
@@ -37,13 +39,22 @@ export function createBot(config: Config): Client {
 
     if (!clientId) return;
 
-    if (!isDM && !isMentioned(message, clientId)) return;
+    if (!isDM && !isMentioned(message, clientId)) {
+      console.log(`[bot:debug] ignored — not mentioned`);
+      return;
+    }
 
-    if (!isAllowed(message, config)) return;
+    if (!isAllowed(message, config)) {
+      console.log(`[bot:debug] ignored — not allowed (owner/guild/channel check failed)`);
+      return;
+    }
 
     const rawContent = isDM ? message.content : stripMention(message.content, clientId);
 
-    if (!rawContent) return;
+    if (!rawContent) {
+      console.log(`[bot:debug] ignored — empty content after strip`);
+      return;
+    }
 
     const sessionId = getSessionId(message.channelId);
 
