@@ -60,7 +60,13 @@ export function createBot(config: Config): Client {
 
     try {
       await message.channel.sendTyping();
-      const reply = await chat(config.cypherclawToken, rawContent, sessionId);
+      const typingInterval = setInterval(() => message.channel.sendTyping(), 8000);
+      let reply: string;
+      try {
+        reply = await chat(config.cypherclawToken, rawContent, sessionId);
+      } finally {
+        clearInterval(typingInterval);
+      }
       await message.reply(reply);
     } catch (err) {
       console.error("[bot] Error handling message:", err instanceof Error ? err.message : err);
