@@ -44,9 +44,11 @@ const cmd = process.argv[2];
 if (cmd === "start") {
   const existingPid = await readPid();
   if (existingPid && isRunning(existingPid)) {
-    console.log(`[daemon] Already running (pid ${existingPid}). Use "npm run stop" first.`);
-    process.exit(1);
+    console.log(`[daemon] Stopping existing daemon (pid ${existingPid})...`);
+    process.kill(existingPid, "SIGTERM");
+    await new Promise<void>((resolve) => setTimeout(resolve, 500));
   }
+  await clearPid();
 
   const envPath = path.resolve(__dirname, "../.env");
   const envRaw = await fs.readFile(envPath, "utf-8").catch(() => "");
