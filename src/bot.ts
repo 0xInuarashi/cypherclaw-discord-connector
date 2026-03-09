@@ -106,8 +106,18 @@ export function createBot(config: Config): Client {
       }
       await sendReply(message, reply);
     } catch (err) {
-      console.error("[bot] Error handling message:", err instanceof Error ? err.message : err);
-      await message.reply("Something went wrong reaching the CypherClaw agent.").catch(() => {});
+      console.error("[bot] Error handling message:", err);
+      const lines: string[] = ["❌ **Gateway Error**"];
+      if (err instanceof Error) {
+        lines.push(`**${err.name}:** ${err.message}`);
+        if (err.stack) lines.push(`\`\`\`\n${err.stack}\n\`\`\``);
+      } else {
+        lines.push(`\`\`\`\n${String(err)}\n\`\`\``);
+      }
+      lines.push(`**session:** \`${sessionId}\``);
+      lines.push(`**channel:** \`${message.channelId}\``);
+      lines.push(`**user:** \`${message.author.id}\``);
+      await sendReply(message, lines.join("\n")).catch(() => {});
     }
   });
 
